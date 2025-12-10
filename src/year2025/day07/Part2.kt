@@ -5,7 +5,7 @@ fun main() {
     var beams: List<ULong> = lines.first().map { if (it == 'S') 1u else 0u }
     val length = lines.first().length
     for (line in lines.drop(1)) {
-        var nextBeams = beams.toMutableList()
+        val nextBeams = beams.toMutableList()
         line.withIndex().filter { it.value == '^' }.forEach {
             val i = it.index
             nextBeams[i] = 0u
