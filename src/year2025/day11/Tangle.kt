@@ -37,7 +37,7 @@ class Tangle(val attachments: Map<String, List<String>>) {
     fun countPathsLinalg(segments: List<Pair<String, String>>): LongArray {
         val sources = IntArray(segments.size) { devices.indexOf(segments[it].first) }
         val targets = IntArray(segments.size) { devices.indexOf(segments[it].second) }
-        var counts = LongArray(segments.size) { 0 }
+        val counts = LongArray(segments.size) { 0 }
         var paths = adjacency.copy()
         val pbb = ProgressBar.builder().setInitialMax(devices.size.toLong()).setTaskName("Counting paths")
             .setMaxRenderedLength(132)
