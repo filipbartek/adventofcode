@@ -40,7 +40,9 @@ class Tangle(val attachments: Map<String, List<String>>) {
         val targetI = devices.indexOf(target)
         var paths = adjacency.copy()
         var count = 0.toLong()
-        ProgressBar("$source->$target", devices.size.toLong()).use { pb ->
+        val pbb = ProgressBar.builder().setInitialMax(devices.size.toLong()).setTaskName("$source->$target")
+            .setMaxRenderedLength(132)
+        pbb.build().use { pb ->
             while (paths[sourceI].sum() > 0) {
                 count += paths[sourceI, targetI]
                 paths = paths dot adjacency
