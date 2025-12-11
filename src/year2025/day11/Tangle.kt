@@ -5,6 +5,7 @@ import org.jetbrains.kotlinx.multik.api.d2arrayIndices
 import org.jetbrains.kotlinx.multik.api.linalg.dot
 import org.jetbrains.kotlinx.multik.api.mk
 import org.jetbrains.kotlinx.multik.ndarray.data.get
+import org.jetbrains.kotlinx.multik.ndarray.operations.count
 import org.jetbrains.kotlinx.multik.ndarray.operations.sum
 
 class Tangle(val attachments: Map<String, List<String>>) {
@@ -33,25 +34,29 @@ class Tangle(val attachments: Map<String, List<String>>) {
 
     fun isConnected(source: String, target: String) = attachments[source]?.contains(target) ?: false
 
-    fun countPathsLinalg(source: String, target: String): Long {
-        assert(source in devices)
-        val sourceI = devices.indexOf(source)
-        assert(target in devices)
-        val targetI = devices.indexOf(target)
+    fun countPathsLinalg(segments: List<Pair<String, String>>): LongArray {
+        val sources = IntArray(segments.size) { devices.indexOf(segments[it].first) }
+        val targets = IntArray(segments.size) { devices.indexOf(segments[it].second) }
+        var counts = LongArray(segments.size) { 0 }
         var paths = adjacency.copy()
-        var count = 0.toLong()
-        val pbb = ProgressBar.builder().setInitialMax(devices.size.toLong()).setTaskName("$source->$target")
+        val pbb = ProgressBar.builder().setInitialMax(devices.size.toLong()).setTaskName("Counting paths")
             .setMaxRenderedLength(132)
         pbb.build().use { pb ->
-            while (paths[sourceI].sum() > 0) {
-                count += paths[sourceI, targetI]
+            while (true) {
+                var remaining = 0.toLong()
+                sources.zip(targets).forEachIndexed { i, (source, target) ->
+                    counts[i] += paths[source, target]
+                    remaining += paths[source].count { it > 0 }
+                }
+                assert(remaining >= 0)
+                if (remaining == 0.toLong()) break
                 paths = paths dot adjacency
                 pb.step()
-                pb.extraMessage = "${paths[sourceI].sum()}:$count"
+                pb.extraMessage = "${remaining}:${counts.reduce(Long::times)}"
             }
         }
         System.out.flush()
-        return count
+        return counts
     }
 
     fun countPathsDfs(source: String, target: String = "out"): Int {
