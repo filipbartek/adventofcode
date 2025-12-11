@@ -41,11 +41,11 @@ class Tangle(val attachments: Map<String, List<String>>) {
         var paths = adjacency.copy()
         var count = 0.toLong()
         ProgressBar("$source->$target", devices.size.toLong()).use { pb ->
-            while (paths.sum() > 0) {
+            while (paths[sourceI].sum() > 0) {
                 count += paths[sourceI, targetI]
                 paths = paths dot adjacency
                 pb.step()
-                pb.extraMessage = "${paths.sum()}:$count"
+                pb.extraMessage = "${paths[sourceI].sum()}:$count"
             }
         }
         System.out.flush()
