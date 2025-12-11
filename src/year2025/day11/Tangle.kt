@@ -15,18 +15,24 @@ class Tangle(val attachments: Map<String, List<String>>) {
         val targets = words.drop(1)
         source to targets
     })
-    
+
     val devices = (attachments.keys + attachments.values.flatten().toSet()).sorted()
-    val adjacency = mk.d2arrayIndices(devices.size, devices.size) { i, j -> if (isConnected(devices[i], devices[j])) 1.toLong() else 0.toLong() }
-    
+    val adjacency = mk.d2arrayIndices(devices.size, devices.size) { i, j ->
+        if (isConnected(
+                devices[i],
+                devices[j]
+            )
+        ) 1.toLong() else 0.toLong()
+    }
+
     init {
         println("Devices: ${devices.size}")
         println("Maximum outputs per device: ${attachments.values.maxOf { it.size }}")
         println("Edges: ${adjacency.sum()}")
     }
-    
+
     fun isConnected(source: String, target: String) = attachments[source]?.contains(target) ?: false
-    
+
     fun countPathsLinalg(source: String, target: String): Long {
         assert(source in devices)
         val sourceI = devices.indexOf(source)
